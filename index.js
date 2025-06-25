@@ -4,65 +4,36 @@ const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch
 const cors = require("cors");
 const path = require("path");
 
-const app = express();
 app.use(cors({
   origin: '*',
   methods: ['GET', 'POST'],
   allowedHeaders: ['Content-Type']
 }));
 
+app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname)));
 
-// Environment variables with fallback values
-const domain = process.env.DOMAIN || "https://izanhost.storedigital.web.id";
-const apikey = process.env.API_KEY || "ptlc_tTtb3KgixTyHdnUH7Ep9hhV6hg9i9H0vjkcw4xjcs2h";
-const capikey = process.env.CLIENT_KEY || "ptla_EERL051rZFfpVmtkqyfMIz7b8krQTkNOYKapBtGOe29";
-const egg = process.env.EGG_ID || "15";
-const nestid = process.env.NEST_ID || "5";
-const loc = process.env.LOCATION_ID || "1";
-
-app.get("/", (req, res) => {
-  res.json({
-    message: "Joocode Panel API is running",
-    endpoints: {
-      "POST /create": "Create new pterodactyl server"
-    },
-    status: "online"
-  });
-});
+const apikey = "ptlc_tTtb3KgixTyHdnUH7Ep9hhV6hg9i9H0vjkcw4xjcs2h";
+const capikey = "ptla_EERL051rZFfpVmtkqyfMIz7b8krQTkNOYKapBtGOe29";
+const domain = "https://izanhost.storedigital.web.id";
+const nestid = "5";
+const egg = "15";
+const loc = "1";
 
 app.post("/create", async (req, res) => {
-  const { username, email, size } = req.body;
-  if (!username || !email || !size) return res.status(400).json({ error: "Data tidak lengkap" });
-
-  const sizeMap = {
-    "1gb": { ram: "1000", disk: "1000", cpu: "40" },
-    "2gb": { ram: "2000", disk: "1000", cpu: "60" },
-    "3gb": { ram: "3000", disk: "2000", cpu: "80" },
-    "4gb": { ram: "4000", disk: "2000", cpu: "100" },
-    "5gb": { ram: "5000", disk: "3000", cpu: "120" },
-    "6gb": { ram: "6000", disk: "3000", cpu: "140" },
-    "7gb": { ram: "7000", disk: "4000", cpu: "160" },
-    "8gb": { ram: "8000", disk: "4000", cpu: "180" },
-    "9gb": { ram: "9000", disk: "5000", cpu: "200" },
-    "10gb": { ram: "10000", disk: "5000", cpu: "220" },
-    "unlimited": { ram: "0", disk: "0", cpu: "0" }
-  };
-
-  const resource = sizeMap[size];
-  if (!resource) return res.status(400).json({ error: "Ukuran tidak valid" });
-
+  const { username, email, ram } = req.body;
   const password = username + Math.floor(Math.random() * 10000);
   const name = username + "-server";
 
   try {
+    // Buat user
     const userRes = await fetch(`${domain}/api/application/users`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${apikey}`,
-        Accept: "application/json"
+        Accept: "application/json",
       },
       body: JSON.stringify({
         email,
@@ -70,32 +41,34 @@ app.post("/create", async (req, res) => {
         first_name: username,
         last_name: "User",
         password,
-        language: "en"
-      })
+        language: "en",
+      }),
     });
 
     const userData = await userRes.json();
-    if (userData.errors) return res.status(400).json({ error: userData.errors[0].detail });
+    if (userData.errors) return res.json({ error: userData.errors[0] });
 
     const userId = userData.attributes.id;
 
-    const eggRes = await fetch(`${domain}/api/application/nests/${nestid}/eggs/${egg}`, {
+    // Ambil startup
+    const eggData = await fetch(`${domain}/api/application/nests/${nestid}/eggs/${egg}`, {
+      method: "GET",
       headers: {
         Authorization: `Bearer ${apikey}`,
         Accept: "application/json",
-        "Content-Type": "application/json"
-      }
+        "Content-Type": "application/json",
+      },
     });
-
-    const eggJson = await eggRes.json();
+    const eggJson = await eggData.json();
     const startup = eggJson.attributes.startup;
 
+    // Buat server
     const serverRes = await fetch(`${domain}/api/application/servers`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${apikey}`,
         Accept: "application/json",
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({
         name,
@@ -107,45 +80,55 @@ app.post("/create", async (req, res) => {
           INST: "npm",
           USER_UPLOAD: "0",
           AUTO_UPDATE: "0",
-          CMD_RUN: "npm start"
+          CMD_RUN: "npm start",
         },
         limits: {
-          memory: parseInt(resource.ram),
+          memory: ram,
           swap: 0,
-          disk: parseInt(resource.disk),
+          disk: 1000,
           io: 500,
-          cpu: parseInt(resource.cpu)
+          cpu: 100,
         },
         feature_limits: {
           databases: 5,
           backups: 5,
-          allocations: 5
+          allocations: 5,
         },
         deploy: {
           locations: [parseInt(loc)],
           dedicated_ip: false,
-          port_range: []
-        }
-      })
+          port_range: [],
+        },
+      }),
     });
 
     const serverData = await serverRes.json();
-    if (serverData.errors) return res.status(400).json({ error: serverData.errors[0].detail });
+    if (serverData.errors) return res.json({ error: serverData.errors[0] });
 
     res.json({
       username,
       password,
       email,
-      panel_url: domain,
+      domain,
+      panel_url: `${domain}`,
       server_id: serverData.attributes.id,
-      ram: resource.ram + "MB",
-      disk: resource.disk + "MB",
-      cpu: resource.cpu + "%"
     });
   } catch (err) {
-    res.status(500).json({ error: "Internal server error", detail: err.message });
+    res.status(500).json({ error: "Internal Server Error", detail: err.message });
   }
 });
 
+// Endpoint untuk GET request (info API)
+app.get("/", (req, res) => {
+  res.json({
+    message: "Panel API is running",
+    endpoints: {
+      "POST /create": "Create new pterodactyl server",
+      "GET /": "API information"
+    },
+    status: "online"
+  });
+});
+
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, "0.0.0.0", () => console.log(`Joocode Panel API aktif di port ${PORT}`));
+app.listen(PORT, "0.0.0.0", () => console.log(`Panel API ready at :${PORT}`));
