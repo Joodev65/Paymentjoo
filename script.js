@@ -54,7 +54,7 @@ document.getElementById("panelForm").addEventListener("submit", async (e) => {
 
   try {
     // Gunakan URL relatif untuk menggunakan domain yang sama
-    const res = await fetch("/create", {
+    const res = await fetch("https://93435678-da55-4c8f-bc50-31bad0d1b364-00-2w31z89v7uzss.sisko.replit.dev/create", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ username, email, size })
