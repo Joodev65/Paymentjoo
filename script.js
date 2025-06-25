@@ -76,13 +76,13 @@ document.getElementById("panelForm").addEventListener("submit", async (e) => {
       return;
     }
 
-    resultBox.innerHTML = `
-      âœ… Panel berhasil dibuat!<br/><br/>
-      ðŸŒ Domain: ${data.panel_url}<br/>
-      ðŸ‘¤ Username: ${data.username}<br/>
-      ðŸ” Password: ${data.password}<br/>
-      ðŸ“§ Email: ${data.email}<br/>
-      ðŸ†” Server ID: ${data.server_id}
+      resultBox.innerHTML = `
+      ✅ Panel berhasil dibuat!<br/><br/>
+      🌐 Domain: ${data.panel_url}<br/>
+      👤 Username: ${data.username}<br/>
+      🔐 Password: ${data.password}<br/>
+      📧 Email: ${data.email}<br/>
+      🆔 Server ID: ${data.server_id}
     `;
   } catch (err) {
     resultBox.innerHTML = "âŒ Error saat request: " + err.message;
