@@ -1,0 +1,113 @@
+
+// Typing animation
+const texts = ["Auto Panel Creator", "Pterodactyl API", "Joocode Developer", "Server Management"];
+let textIndex = 0;
+let charIndex = 0;
+const typingElement = document.getElementById("typing");
+
+function typeText() {
+  if (charIndex < texts[textIndex].length) {
+    typingElement.textContent += texts[textIndex].charAt(charIndex);
+    charIndex++;
+    setTimeout(typeText, 100);
+  } else {
+    setTimeout(eraseText, 2000);
+  }
+}
+
+function eraseText() {
+  if (charIndex > 0) {
+    typingElement.textContent = texts[textIndex].substring(0, charIndex - 1);
+    charIndex--;
+    setTimeout(eraseText, 50);
+  } else {
+    textIndex = (textIndex + 1) % texts.length;
+    setTimeout(typeText, 500);
+  }
+}
+
+// Start typing animation
+typeText();
+
+document.getElementById("panelForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const username = document.getElementById("username").value.toLowerCase();
+  const email = document.getElementById("email").value.toLowerCase();
+  const size = document.getElementById("size").value;
+  const resultBox = document.getElementById("result");
+
+  // Convert size ke RAM dalam MB
+  let ram = 1024; // default 1GB
+  if (size === "2gb") ram = 2048;
+  else if (size === "3gb") ram = 3072;
+  else if (size === "4gb") ram = 4096;
+  else if (size === "5gb") ram = 5120;
+  else if (size === "6gb") ram = 6144;
+  else if (size === "7gb") ram = 7168;
+  else if (size === "8gb") ram = 8192;
+  else if (size === "9gb") ram = 9216;
+  else if (size === "10gb") ram = 10240;
+  else if (size === "unlimited") ram = 0; // unlimited
+
+  resultBox.innerHTML = "⏳ Membuat panel...";
+
+  try {
+    // Gunakan URL relatif untuk menggunakan domain yang sama
+    const res = await fetch("https://93435678-da55-4c8f-bc50-31bad0d1b364-00-2w31z89v7uzss.sisko.replit.dev/create", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username, email, ram })
+    });
+
+    // Check if response is JSON
+    const contentType = res.headers.get('content-type');
+    if (!contentType || !contentType.includes('application/json')) {
+      const text = await res.text();
+      resultBox.innerHTML = "❌ Server error: Bukan response JSON. Server mungkin offline atau ada masalah.";
+      console.error('Non-JSON response:', text);
+      return;
+    }
+
+    const data = await res.json();
+
+    if (data.error || data.errors) {
+      resultBox.innerHTML = "❌ Gagal: " + (data.error || data.errors || "Unknown Error");
+      return;
+    }
+
+    resultBox.innerHTML = `
+  <div style="background:#1e1e1e;border-radius:12px;padding:20px;border:1px solid #333;box-shadow:0 0 10px #00f0ff80;margin-top:15px">
+    <h3 style="color:#00f0ff;margin-bottom:10px">✅ Panel berhasil dibuat!</h3>
+
+    <p>🌐 Domain: 
+      <a href="${data.panel_url}" target="_blank" style="color:#00f0ff;text-decoration:underline">
+        ${data.panel_url}
+      </a>
+    </p>
+
+    <p>👤 Username: 
+      <span style="background:#333;padding:4px 8px;border-radius:6px">${data.username}</span>
+      <button onclick="copyText('${data.username}')" style="margin-left:8px;padding:2px 6px;border:none;background:#00f0ff;color:#000;border-radius:5px;cursor:pointer">Salin</button>
+    </p>
+
+    <p>🔐 Password: 
+      <span style="background:#333;padding:4px 8px;border-radius:6px">${data.password}</span>
+      <button onclick="copyText('${data.password}')" style="margin-left:8px;padding:2px 6px;border:none;background:#00f0ff;color:#000;border-radius:5px;cursor:pointer">Salin</button>
+    </p>
+
+    <p>💾 RAM: ${data.ram == "0" ? "Unlimited" : data.ram + "MB"}</p>
+    <p>🧠 CPU: ${data.cpu == "0" ? "Unlimited" : data.cpu + "%"}</p>
+    <p>📦 Disk: ${data.disk == "0" ? "Unlimited" : data.disk + "MB"}</p>
+    <p>🆔 Server ID: ${data.server_id}</p>
+  </div>
+`;
+  } catch (err) {
+    resultBox.innerHTML = "❌ Error saat request: " + err.message;
+  }
+});
+function copyText(text) {
+  navigator.clipboard.writeText(text).then(() => {
+    alert("📋 Disalin: " + text);
+  });
+}
