@@ -50,21 +50,21 @@ document.getElementById("panelForm").addEventListener("submit", async (e) => {
   else if (size === "10gb") ram = 10240;
   else if (size === "unlimited") ram = 0; // unlimited
 
-  resultBox.innerHTML = "⏳ Membuat panel...";
+  resultBox.innerHTML = "â³ Membuat panel...";
 
   try {
     // Gunakan URL relatif untuk menggunakan domain yang sama
-    const res = await fetch("https://93435678-da55-4c8f-bc50-31bad0d1b364-00-2w31z89v7uzss.sisko.replit.dev/create", {
+    const res = await fetch("/create", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username, email, ram })
+      body: JSON.stringify({ username, email, size })
     });
 
     // Check if response is JSON
     const contentType = res.headers.get('content-type');
     if (!contentType || !contentType.includes('application/json')) {
       const text = await res.text();
-      resultBox.innerHTML = "❌ Server error: Bukan response JSON. Server mungkin offline atau ada masalah.";
+      resultBox.innerHTML = "âŒ Server error: Bukan response JSON. Server mungkin offline atau ada masalah.";
       console.error('Non-JSON response:', text);
       return;
     }
@@ -72,42 +72,19 @@ document.getElementById("panelForm").addEventListener("submit", async (e) => {
     const data = await res.json();
 
     if (data.error || data.errors) {
-      resultBox.innerHTML = "❌ Gagal: " + (data.error || data.errors || "Unknown Error");
+      resultBox.innerHTML = "âŒ Gagal: " + (data.error || data.errors || "Unknown Error");
       return;
     }
 
     resultBox.innerHTML = `
-  <div style="background:#1e1e1e;border-radius:12px;padding:20px;border:1px solid #333;box-shadow:0 0 10px #00f0ff80;margin-top:15px">
-    <h3 style="color:#00f0ff;margin-bottom:10px">✅ Panel berhasil dibuat!</h3>
-
-    <p>🌐 Domain: 
-      <a href="${data.panel_url}" target="_blank" style="color:#00f0ff;text-decoration:underline">
-        ${data.panel_url}
-      </a>
-    </p>
-
-    <p>👤 Username: 
-      <span style="background:#333;padding:4px 8px;border-radius:6px">${data.username}</span>
-      <button onclick="copyText('${data.username}')" style="margin-left:8px;padding:2px 6px;border:none;background:#00f0ff;color:#000;border-radius:5px;cursor:pointer">Salin</button>
-    </p>
-
-    <p>🔐 Password: 
-      <span style="background:#333;padding:4px 8px;border-radius:6px">${data.password}</span>
-      <button onclick="copyText('${data.password}')" style="margin-left:8px;padding:2px 6px;border:none;background:#00f0ff;color:#000;border-radius:5px;cursor:pointer">Salin</button>
-    </p>
-
-    <p>💾 RAM: ${data.ram == "0" ? "Unlimited" : data.ram + "MB"}</p>
-    <p>🧠 CPU: ${data.cpu == "0" ? "Unlimited" : data.cpu + "%"}</p>
-    <p>📦 Disk: ${data.disk == "0" ? "Unlimited" : data.disk + "MB"}</p>
-    <p>🆔 Server ID: ${data.server_id}</p>
-  </div>
-`;
+      âœ… Panel berhasil dibuat!<br/><br/>
+      ðŸŒ Domain: ${data.panel_url}<br/>
+      ðŸ‘¤ Username: ${data.username}<br/>
+      ðŸ” Password: ${data.password}<br/>
+      ðŸ“§ Email: ${data.email}<br/>
+      ðŸ†” Server ID: ${data.server_id}
+    `;
   } catch (err) {
-    resultBox.innerHTML = "❌ Error saat request: " + err.message;
+    resultBox.innerHTML = "âŒ Error saat request: " + err.message;
   }
 });
-function copyText(text) {
-  navigator.clipboard.writeText(text).then(() => {
-    alert("📋 Disalin: " + text);
-  });
-}
