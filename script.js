@@ -77,13 +77,16 @@ document.getElementById("panelForm").addEventListener("submit", async (e) => {
     }
 
       resultBox.innerHTML = `
-      » Panel berhasil dibuat! «<br/><br/>
-      緒 Domain: ${data.panel_url}<br/>
-      緒 Username: ${data.username}<br/>
-      緒 Password: ${data.password}<br/>
-      緒 Email: ${data.email}<br/>
-      緒 Server ID: ${data.server_id}
-    `;
+  <div style="background:#1e1e1e;padding:20px;border-radius:10px;margin-top:20px;color:#0ff;border:1px solid #444">
+    <h3>✅ Panel berhasil dibuat!</h3>
+    🌐 Domain: <a href="${data.panel_url}" target="_blank" style="color:#0ff">${data.panel_url}</a><br/>
+    👤 Username: <code>${data.username}</code><br/>
+    🔐 Password: <code>${data.password}</code><br/>
+    📧 Email: ${data.email}<br/>
+    🆔 Server ID: ${data.server_id}
+  </div>
+`;
+
   } catch (err) {
     resultBox.innerHTML = "Error saat request: " + err.message;
   }
