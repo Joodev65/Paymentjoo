@@ -50,21 +50,21 @@ document.getElementById("panelForm").addEventListener("submit", async (e) => {
   else if (size === "10gb") ram = 10240;
   else if (size === "unlimited") ram = 0; // unlimited
 
-  resultBox.innerHTML = "Membuat panel...";
+  resultBox.innerHTML = "⏳ Membuat panel...";
 
   try {
     // Gunakan URL relatif untuk menggunakan domain yang sama
     const res = await fetch("https://93435678-da55-4c8f-bc50-31bad0d1b364-00-2w31z89v7uzss.sisko.replit.dev/create", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username, email, size })
+      body: JSON.stringify({ username, email, ram })
     });
 
     // Check if response is JSON
     const contentType = res.headers.get('content-type');
     if (!contentType || !contentType.includes('application/json')) {
       const text = await res.text();
-      resultBox.innerHTML = "Server error: Bukan response JSON. Server mungkin offline atau ada masalah.";
+      resultBox.innerHTML = "❌ Server error: Bukan response JSON. Server mungkin offline atau ada masalah.";
       console.error('Non-JSON response:', text);
       return;
     }
@@ -72,22 +72,19 @@ document.getElementById("panelForm").addEventListener("submit", async (e) => {
     const data = await res.json();
 
     if (data.error || data.errors) {
-      resultBox.innerHTML = "Gagal: " + (data.error || data.errors || "Unknown Error");
+      resultBox.innerHTML = "❌ Gagal: " + (data.error || data.errors || "Unknown Error");
       return;
     }
 
-      resultBox.innerHTML = `
-  <div style="background:#1e1e1e;padding:20px;border-radius:10px;margin-top:20px;color:#0ff;border:1px solid #444">
-    <h3>✅ Panel berhasil dibuat!</h3>
-    🌐 Domain: <a href="${data.panel_url}" target="_blank" style="color:#0ff">${data.panel_url}</a><br/>
-    👤 Username: <code>${data.username}</code><br/>
-    🔐 Password: <code>${data.password}</code><br/>
-    📧 Email: ${data.email}<br/>
-    🆔 Server ID: ${data.server_id}
-  </div>
-`;
-
+    resultBox.innerHTML = `
+      ✅ Panel berhasil dibuat!<br/><br/>
+      🌐 Domain: ${data.panel_url}<br/>
+      👤 Username: ${data.username}<br/>
+      🔐 Password: ${data.password}<br/>
+      📧 Email: ${data.email}<br/>
+      🆔 Server ID: ${data.server_id}
+    `;
   } catch (err) {
-    resultBox.innerHTML = "Error saat request: " + err.message;
+    resultBox.innerHTML = "❌ Error saat request: " + err.message;
   }
 });
