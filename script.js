@@ -50,7 +50,7 @@ document.getElementById("panelForm").addEventListener("submit", async (e) => {
   else if (size === "10gb") ram = 10240;
   else if (size === "unlimited") ram = 0; // unlimited
 
-  resultBox.innerHTML = "â³ Membuat panel...";
+  resultBox.innerHTML = "Membuat panel...";
 
   try {
     // Gunakan URL relatif untuk menggunakan domain yang sama
@@ -64,7 +64,7 @@ document.getElementById("panelForm").addEventListener("submit", async (e) => {
     const contentType = res.headers.get('content-type');
     if (!contentType || !contentType.includes('application/json')) {
       const text = await res.text();
-      resultBox.innerHTML = "âŒ Server error: Bukan response JSON. Server mungkin offline atau ada masalah.";
+      resultBox.innerHTML = "Server error: Bukan response JSON. Server mungkin offline atau ada masalah.";
       console.error('Non-JSON response:', text);
       return;
     }
@@ -72,19 +72,19 @@ document.getElementById("panelForm").addEventListener("submit", async (e) => {
     const data = await res.json();
 
     if (data.error || data.errors) {
-      resultBox.innerHTML = "âŒ Gagal: " + (data.error || data.errors || "Unknown Error");
+      resultBox.innerHTML = "Gagal: " + (data.error || data.errors || "Unknown Error");
       return;
     }
 
       resultBox.innerHTML = `
-      ✅ Panel berhasil dibuat!<br/><br/>
-      🌐 Domain: ${data.panel_url}<br/>
-      👤 Username: ${data.username}<br/>
-      🔐 Password: ${data.password}<br/>
-      📧 Email: ${data.email}<br/>
-      🆔 Server ID: ${data.server_id}
+      » Panel berhasil dibuat! «<br/><br/>
+      緒 Domain: ${data.panel_url}<br/>
+      緒 Username: ${data.username}<br/>
+      緒 Password: ${data.password}<br/>
+      緒 Email: ${data.email}<br/>
+      緒 Server ID: ${data.server_id}
     `;
   } catch (err) {
-    resultBox.innerHTML = "âŒ Error saat request: " + err.message;
+    resultBox.innerHTML = "Error saat request: " + err.message;
   }
 });
