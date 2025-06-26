@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -43,16 +42,29 @@
       width: 100%; max-width: 320px; border-radius: 15px;
       z-index: 1; box-shadow: 0 0 20px rgba(0, 240, 255, 0.2);
     }
-    .form-section {
-      margin: 50px auto; max-width: 500px; padding: 30px;
-      background: #1e1e1e; border-radius: 15px;
-      box-shadow: 0 0 20px rgba(0, 255, 255, 0.1);
+    .tabs {
+      display: flex; justify-content: center; gap: 20px; margin: 20px 0;
     }
-    .form-section h3 {
-      text-align: center; margin-bottom: 20px;
-      background: linear-gradient(135deg, #00f0ff, #ff00f0);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
+    .tab-btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #00f0ff, #8f00ff);
+      color: white;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    .section {
+      display: none;
+      max-width: 600px;
+      margin: auto;
+      background: #1e1e1e;
+      padding: 20px;
+      border-radius: 15px;
+      box-shadow: 0 0 15px rgba(0, 240, 255, 0.2);
+    }
+    .section.active {
+      display: block;
     }
     input, select, button {
       width: 100%; padding: 12px; margin-bottom: 15px;
@@ -67,9 +79,16 @@
       margin-top: 20px; background: #2a2a2a;
       padding: 10px; border-radius: 10px;
     }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
+    .server-item {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 10px; margin: 10px 0;
+      background: #1c1c1c; border-radius: 10px;
+    }
+    .delete-btn {
+      background: #ff0040;
+      border: none; border-radius: 6px;
+      padding: 5px 10px; color: white;
+      cursor: pointer;
     }
   </style>
 </head>
@@ -93,7 +112,12 @@
     </div>
   </section>
 
-  <section class="form-section">
+  <div class="tabs">
+    <button class="tab-btn" onclick="showSection('create')">Buat Panel</button>
+    <button class="tab-btn" onclick="showSection('list')">List Panel</button>
+  </div>
+
+  <section id="create" class="section active">
     <h3>Buat Panel Sekarang</h3>
     <form id="panelForm">
       <select id="size">
@@ -116,6 +140,99 @@
     <div id="result"></div>
   </section>
 
-  <script src="script.js"></script>
+  <section id="list" class="section">
+    <h3>Daftar Server Aktif</h3>
+    <div id="serverList"></div>
+  </section>
+
+  <script>
+    const typingElement = document.getElementById("typing");
+    const texts = ["Auto Panel Creator", "Pterodactyl API", "Joocode Developer"];
+    let textIndex = 0, charIndex = 0;
+    function typeText() {
+      if (charIndex < texts[textIndex].length) {
+        typingElement.textContent += texts[textIndex].charAt(charIndex);
+        charIndex++;
+        setTimeout(typeText, 100);
+      } else {
+        setTimeout(eraseText, 2000);
+      }
+    }
+    function eraseText() {
+      if (charIndex > 0) {
+        typingElement.textContent = texts[textIndex].substring(0, charIndex - 1);
+        charIndex--;
+        setTimeout(eraseText, 50);
+      } else {
+        textIndex = (textIndex + 1) % texts.length;
+        setTimeout(typeText, 500);
+      }
+    }
+    typeText();
+
+    function showSection(id) {
+      document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+    }
+
+    document.getElementById("panelForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const username = document.getElementById("username").value.toLowerCase();
+      const email = document.getElementById("email").value.toLowerCase();
+      const size = document.getElementById("size").value;
+      const resultBox = document.getElementById("result");
+      resultBox.innerHTML = "⏳ Membuat panel...";
+      try {
+        const res = await fetch("https://solid-hammerhead-petalite.glitch.me/create", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username, email, size })
+        });
+        const data = await res.json();
+        if (data.error) return resultBox.innerHTML = "❌ Gagal: " + data.error;
+        resultBox.innerHTML = `
+          ✅ Panel berhasil dibuat!<br/><br/>
+          🌐 Domain: <a href="${data.panel_url}" target="_blank">${data.panel_url}</a><br/>
+          👤 Username: <code>${data.username}</code> <button onclick="navigator.clipboard.writeText('${data.username}')">📋</button><br/>
+          🔐 Password: <code>${data.password}</code> <button onclick="navigator.clipboard.writeText('${data.password}')">📋</button><br/>
+          📧 Email: ${data.email}<br/>
+          🆔 Server ID: ${data.server_id}`;
+      } catch (err) {
+        resultBox.innerHTML = "❌ Gagal melakukan request.";
+      }
+    });
+
+    async function fetchServers() {
+      const container = document.getElementById("serverList");
+      container.innerHTML = "⏳ Memuat daftar server...";
+      try {
+        const res = await fetch("https://solid-hammerhead-petalite.glitch.me/servers");
+        const servers = await res.json();
+        if (!servers || !Array.isArray(servers)) return container.innerHTML = "Gagal mengambil data.";
+        container.innerHTML = servers.map(srv => `
+          <div class="server-item">
+            <span class="server-name">${srv.name}</span>
+            <button class="delete-btn" onclick="deleteServer('${srv.id}')">🗑️</button>
+          </div>
+        `).join('');
+      } catch (err) {
+        container.innerHTML = "❌ Gagal mengambil data server.";
+      }
+    }
+
+    async function deleteServer(id) {
+      if (!confirm("Yakin hapus server ini?")) return;
+      try {
+        const res = await fetch(`https://solid-hammerhead-petalite.glitch.me/server/${id}`, { method: "DELETE" });
+        const data = await res.json();
+        if (data.success) fetchServers();
+        else alert("Gagal hapus server");
+      } catch (err) {
+        alert("❌ Error saat menghapus");
+      }
+    }
+
+    document.querySelector(".tab-btn:nth-child(2)").addEventListener("click", fetchServers);
+  </script>
 </body>
 </html>
