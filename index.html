@@ -43,26 +43,28 @@
       z-index: 1; box-shadow: 0 0 20px rgba(0, 240, 255, 0.2);
     }
     .tabs {
-      display: flex; flex-direction: row; justify-content: center; align-items: center; gap: 10px; margin: 30px 0;
+      display: flex; flex-direction: column; align-items: flex-start; margin: 30px auto 20px 40px;
     }
     .tabs h3 {
-      font-size: 14px;
+      font-size: 16px;
       color: #ccc;
+      margin-bottom: 8px;
     }
     .tab-btn {
-      padding: 5px 10px;
+      padding: 10px 24px;
       border: none;
       border-radius: 8px;
       background: linear-gradient(135deg, #00f0ff, #8f00ff);
       color: white;
       cursor: pointer;
       font-weight: 600;
-      font-size: 12px;
-      min-width: 100px;
-      transition: transform 0.2s;
+      font-size: 15px;
+      width: 280px;
+      margin-bottom: 10px;
+      transition: background 0.3s;
     }
     .tab-btn:hover {
-      transform: scale(1.05);
+      background: linear-gradient(135deg, #8f00ff, #00f0ff);
     }
     .section {
       display: none;
@@ -131,12 +133,13 @@
   </section>
 
   <div class="tabs">
-    <button class="tab-btn" onclick="showSection('create')">Buat Panel</button>
-    <button class="tab-btn" onclick="showSection('list')">List Server</button>
+    <h3>Select Category</h3>
+    <button class="tab-btn" onclick="showSection('create')">Create Panel</button>
+    <button class="tab-btn" onclick="showSection('list')">List Panel</button>
   </div>
 
   <section id="create" class="section">
-    <h3>✧ Buat Panel Sekarang</h3>
+    <h3>Buat Panel Sekarang</h3>
     <form id="panelForm">
       <select id="size">
         <option value="1gb">1GB</option>
