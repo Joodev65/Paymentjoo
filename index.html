@@ -46,14 +46,15 @@
       display: flex; justify-content: center; gap: 10px; margin: 20px 0;
     }
     .tab-btn {
-      padding: 8px 16px;
+      padding: 6px 12px;
       border: none;
       border-radius: 8px;
       background: linear-gradient(135deg, #00f0ff, #8f00ff);
       color: white;
       cursor: pointer;
-      font-weight: bold;
-      font-size: 14px;
+      font-weight: 600;
+      font-size: 13px;
+      min-width: 100px;
     }
     .section {
       display: none;
@@ -88,10 +89,16 @@
     }
     .delete-btn {
       background: #ff0040;
-      border: none; border-radius: 4px;
-      padding: 4px 6px; color: white;
+      border: none;
+      border-radius: 5px;
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 14px;
       cursor: pointer;
-      font-size: 12px;
     }
   </style>
 </head>
@@ -116,8 +123,8 @@
   </section>
 
   <div class="tabs">
-    <button class="tab-btn" onclick="showSection('create')">Buat Panel</button>
-    <button class="tab-btn" onclick="showSection('list')">List Panel</button>
+    <button class="tab-btn" onclick="showSection('create')">Buat</button>
+    <button class="tab-btn" onclick="showSection('list')">List</button>
   </div>
 
   <section id="create" class="section">
@@ -175,7 +182,7 @@
 
     function showSection(id) {
       document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
-      document.getElementById(id).classList.add('active');
+      if (id) document.getElementById(id).classList.add('active');
     }
 
     document.getElementById("panelForm").addEventListener("submit", async (e) => {
@@ -236,7 +243,7 @@
     }
 
     document.querySelector(".tab-btn:nth-child(2)").addEventListener("click", fetchServers);
-    showSection(''); // default: tidak tampil form
+    showSection('');
   </script>
 </body>
 </html>
