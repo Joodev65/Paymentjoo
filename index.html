@@ -43,7 +43,12 @@
       z-index: 1; box-shadow: 0 0 20px rgba(0, 240, 255, 0.2);
     }
     .tabs {
-      display: flex; justify-content: center; gap: 10px; margin: 20px 0;
+      display: flex; flex-direction: column; align-items: center; gap: 10px; margin: 30px 0;
+    }
+    .tabs h3 {
+      margin-bottom: 5px;
+      font-size: 16px;
+      color: #ccc;
     }
     .tab-btn {
       padding: 6px 12px;
@@ -54,7 +59,11 @@
       cursor: pointer;
       font-weight: 600;
       font-size: 13px;
-      min-width: 100px;
+      min-width: 140px;
+      transition: transform 0.2s;
+    }
+    .tab-btn:hover {
+      transform: scale(1.05);
     }
     .section {
       display: none;
@@ -90,14 +99,14 @@
     .delete-btn {
       background: #ff0040;
       border: none;
-      border-radius: 5px;
-      width: 28px;
-      height: 28px;
+      border-radius: 6px;
+      width: 26px;
+      height: 26px;
       display: flex;
       align-items: center;
       justify-content: center;
       color: white;
-      font-size: 14px;
+      font-size: 13px;
       cursor: pointer;
     }
   </style>
@@ -123,8 +132,9 @@
   </section>
 
   <div class="tabs">
-    <button class="tab-btn" onclick="showSection('create')">Buat</button>
-    <button class="tab-btn" onclick="showSection('list')">List</button>
+    <h3>Select Category</h3>
+    <button class="tab-btn" onclick="showSection('create')">Buat Panel</button>
+    <button class="tab-btn" onclick="showSection('list')">List Server</button>
   </div>
 
   <section id="create" class="section">
@@ -151,7 +161,7 @@
   </section>
 
   <section id="list" class="section">
-    <h3>Daftar Server Aktif</h3>
+    <h3>✦ Daftar Server Aktif</h3>
     <div id="serverList"></div>
   </section>
 
@@ -191,7 +201,7 @@
       const email = document.getElementById("email").value.toLowerCase();
       const size = document.getElementById("size").value;
       const resultBox = document.getElementById("result");
-      resultBox.innerHTML = "⏳ Membuat panel...";
+      resultBox.innerHTML = "⧗ Membuat panel...";
       try {
         const res = await fetch("https://solid-hammerhead-petalite.glitch.me/create", {
           method: "POST",
@@ -199,34 +209,34 @@
           body: JSON.stringify({ username, email, size })
         });
         const data = await res.json();
-        if (data.error) return resultBox.innerHTML = "❌ Gagal: " + data.error;
+        if (data.error) return resultBox.innerHTML = "✘ Gagal: " + data.error;
         resultBox.innerHTML = `
-          ✅ Panel berhasil dibuat!<br/><br/>
-          🌐 Domain: <a href="${data.panel_url}" target="_blank">${data.panel_url}</a><br/>
-          👤 Username: <code>${data.username}</code> <button onclick="navigator.clipboard.writeText('${data.username}')">📋</button><br/>
-          🔐 Password: <code>${data.password}</code> <button onclick="navigator.clipboard.writeText('${data.password}')">📋</button><br/>
-          📧 Email: ${data.email}<br/>
-          🆔 Server ID: ${data.server_id}`;
+          ✔ Panel berhasil dibuat!<br/><br/>
+          ➤ <strong>Domain:</strong> <a href="${data.panel_url}" target="_blank">${data.panel_url}</a><br/>
+          ➤ <strong>Username:</strong> <code>${data.username}</code> <button onclick="navigator.clipboard.writeText('${data.username}')">⧉</button><br/>
+          ➤ <strong>Password:</strong> <code>${data.password}</code> <button onclick="navigator.clipboard.writeText('${data.password}')">⧉</button><br/>
+          ➤ <strong>Email:</strong> ${data.email}<br/>
+          ➤ <strong>Server ID:</strong> ${data.server_id}`;
       } catch (err) {
-        resultBox.innerHTML = "❌ Gagal melakukan request.";
+        resultBox.innerHTML = "✘ Gagal melakukan request.";
       }
     });
 
     async function fetchServers() {
       const container = document.getElementById("serverList");
-      container.innerHTML = "⏳ Memuat daftar server...";
+      container.innerHTML = "⧗ Memuat daftar server...";
       try {
         const res = await fetch("https://solid-hammerhead-petalite.glitch.me/servers");
         const servers = await res.json();
-        if (!servers || !Array.isArray(servers)) return container.innerHTML = "Gagal mengambil data.";
+        if (!servers || !Array.isArray(servers)) return container.innerHTML = "✘ Gagal mengambil data.";
         container.innerHTML = servers.map(srv => `
           <div class="server-item">
             <span class="server-name">${srv.attributes.name || 'Tanpa Nama'}</span>
-            <button class="delete-btn" onclick="deleteServer('${srv.attributes.id}')">🗑️</button>
+            <button class="delete-btn" onclick="deleteServer('${srv.attributes.id}')">×</button>
           </div>
         `).join('');
       } catch (err) {
-        container.innerHTML = "❌ Gagal mengambil data server.";
+        container.innerHTML = "✘ Gagal mengambil data server.";
       }
     }
 
@@ -236,13 +246,13 @@
         const res = await fetch(`https://solid-hammerhead-petalite.glitch.me/server/${id}`, { method: "DELETE" });
         const data = await res.json();
         if (data.success) fetchServers();
-        else alert("Gagal hapus server");
+        else alert("✘ Gagal hapus server");
       } catch (err) {
-        alert("❌ Error saat menghapus");
+        alert("✘ Error saat menghapus");
       }
     }
 
-    document.querySelector(".tab-btn:nth-child(2)").addEventListener("click", fetchServers);
+    document.querySelector(".tab-btn:nth-child(3)").addEventListener("click", fetchServers);
     showSection('');
   </script>
 </body>
