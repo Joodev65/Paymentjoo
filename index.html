@@ -32,34 +32,18 @@
       width: 100%; max-width: 320px; border-radius: 15px;
       z-index: 1; box-shadow: 0 0 20px rgba(0, 240, 255, 0.2);
     }
-    .tabs {
-      display: flex; flex-direction: column; align-items: flex-start; margin: 30px 40px;
-    }
+    .tabs { display: flex; flex-direction: column; align-items: flex-start; margin: 30px 40px; }
     .tabs h3 { font-size: 16px; color: #ccc; margin-bottom: 8px; }
     .tab-btn {
-      padding: 10px 24px;
-      border: none;
-      border-radius: 8px;
+      padding: 10px 24px; border: none; border-radius: 8px;
       background: linear-gradient(135deg, #00f0ff, #8f00ff);
-      color: white;
-      cursor: pointer;
-      font-weight: 600;
-      font-size: 15px;
-      width: 240px;
-      margin-bottom: 10px;
-      transition: background 0.3s;
-    }
-    .tab-btn:hover {
-      background: linear-gradient(135deg, #8f00ff, #00f0ff);
+      color: white; cursor: pointer; font-weight: 600;
+      font-size: 15px; width: 240px; margin-bottom: 10px;
     }
     .section {
-      display: none;
-      max-width: 700px;
-      margin: auto;
-      background: #1e1e1e;
-      padding: 30px;
-      border-radius: 15px;
-      box-shadow: 0 0 15px rgba(0, 240, 255, 0.2);
+      display: none; max-width: 700px; margin: auto;
+      background: #1e1e1e; padding: 30px;
+      border-radius: 15px; box-shadow: 0 0 15px rgba(0, 240, 255, 0.2);
     }
     .section.active { display: block; }
     input, select, button {
@@ -122,22 +106,41 @@
     </div>
   </section>
 
-  <script>
-    function showSection(id) {
-      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-      document.getElementById(id).classList.add('active');
-    }
+  <div class="tabs">
+    <h3>Select Category</h3>
+    <button class="tab-btn" onclick="showSection('create')">Create Panel</button>
+    <button class="tab-btn" onclick="showSection('list')">List Panel</button>
+  </div>
 
-    function copyToClipboard(text) {
-      navigator.clipboard.writeText(text).then(() => {
-        const alert = document.getElementById("copyAlert");
-        alert.style.display = "inline-block";
-        setTimeout(() => alert.style.display = "none", 1500);
-      });
-    }
-  </script>
+  <section id="create" class="section">
+    <h3>✧ Buat Panel Sekarang</h3>
+    <form id="panelForm">
+      <select id="size">
+        <option value="1gb">1GB</option>
+        <option value="2gb">2GB</option>
+        <option value="3gb">3GB</option>
+        <option value="4gb">4GB</option>
+        <option value="5gb">5GB</option>
+        <option value="6gb">6GB</option>
+        <option value="7gb">7GB</option>
+        <option value="8gb">8GB</option>
+        <option value="9gb">9GB</option>
+        <option value="10gb">10GB</option>
+        <option value="unlimited">Unlimited</option>
+      </select>
+      <input type="text" id="username" placeholder="Username" required />
+      <input type="email" id="email" placeholder="Email" required />
+      <button type="submit">➤ Buat Sekarang</button>
+    </form>
+    <div id="result"></div>
+  </section>
 
+  <section id="list" class="section">
+    <h3>✦ Daftar Server Aktif</h3>
+    <div id="serverList"></div>
+  </section>
   <script>
+    // Animasi mengetik
     const typingElement = document.getElementById("typing");
     const texts = ["Auto Panel Creator", "Pterodactyl API", "Joocode Developer"];
     let textIndex = 0, charIndex = 0;
@@ -163,10 +166,11 @@
     typeText();
 
     function showSection(id) {
-      document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
-      if (id) document.getElementById(id).classList.add('active');
+      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
     }
 
+    // Submit form panel
     document.getElementById("panelForm").addEventListener("submit", async (e) => {
       e.preventDefault();
       const username = document.getElementById("username").value.toLowerCase();
@@ -185,8 +189,8 @@
         resultBox.innerHTML = `
           ✔ Panel berhasil dibuat!<br/><br/>
           ➤ <strong>Domain:</strong> <a href="${data.panel_url}" target="_blank">${data.panel_url}</a><br/>
-          ➤ <strong>Username:</strong> <code>${data.username}</code> <button onclick="navigator.clipboard.writeText('${data.username}')">⧉</button><br/>
-          ➤ <strong>Password:</strong> <code>${data.password}</code> <button onclick="navigator.clipboard.writeText('${data.password}')">⧉</button><br/>
+          ➤ <strong>Username:</strong> <code>${data.username}</code><br/>
+          ➤ <strong>Password:</strong> <code>${data.password}</code><br/>
           ➤ <strong>Email:</strong> ${data.email}<br/>
           ➤ <strong>Server ID:</strong> ${data.server_id}`;
       } catch (err) {
@@ -194,6 +198,7 @@
       }
     });
 
+    // Ambil daftar server
     async function fetchServers() {
       const container = document.getElementById("serverList");
       container.innerHTML = "⧗ Memuat daftar server...";
@@ -212,6 +217,7 @@
       }
     }
 
+    // Hapus server
     async function deleteServer(id) {
       if (!confirm("Yakin hapus server ini?")) return;
       try {
@@ -224,6 +230,7 @@
       }
     }
 
+    // Tampilkan server saat klik tombol list
     document.querySelector(".tab-btn:nth-child(3)").addEventListener("click", fetchServers);
     showSection('');
   </script>
