@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>חנות רהיטים ישראל</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>חנות רהיטים ישראל</h1>
+    <p>הכי טובים במחירים הכי טובים</p>
+  </header>
+
+  <section id="catalog">
+    <h2>קטלוג מוצרים</h2>
+    <div id="products">
+      <!-- Produk akan dimuat dari JSON -->
+    </div>
+  </section>
+
+  <section id="upload-section">
+    <h2>העלה קובץ JSON</h2>
+    <input type="file" id="jsonFile" accept=".json">
+    <button onclick="loadJSON()">טען קובץ</button>
+  </section>
+
+  <section id="comment-section">
+    <h2>הוסף תגובה</h2>
+    <form id="commentForm">
+      <input type="text" name="name" placeholder="שם" required><br>
+      <input type="email" name="email" placeholder="אימייל" required><br>
+      <textarea name="text" placeholder="הקלד כאן (יכול להכיל JSO)" required></textarea><br>
+      <button type="submit">שלח</button>
+    </form>
+  </section>
+
+  <script src="script.js"></script>
+</body>
+</html>
